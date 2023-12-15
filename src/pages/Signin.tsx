@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useEffect, useState} from "react";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,31 +8,45 @@ import './style.css'
 const Signin = () => {
 
     const [err, setErr] = useState(false);
+    const [auther,setauth] = useState(false)
     const navigate = useNavigate();
   
+    
     const handleSubmit = async (e:any) => {
       e.preventDefault();
       const email = e.target[0].value;
       const password = e.target[1].value;
-  
+      
       try {
         await signInWithEmailAndPassword(auth, email, password);
+        
         onAuthStateChanged(auth, (user) => {
           if (user) {
             console.log("User is: ",user);
             // const uid = user.uid;
             // setData(user)
             sessionStorage.setItem("data", JSON.stringify(user));
-
+            
+            
             // console.log(data)
           } 
         });
+        setauth(true);
+        sessionStorage.setItem("auth" , JSON.stringify(auther))
         navigate("/Main-page")
         // dispatch(setAuth(true))
       } catch (err) {
         setErr(true);
       }
+      
     };
+    useEffect(()=>{
+      const auth:any = sessionStorage.getItem("auth")
+    const authinfo = JSON.parse(auth)
+      if(authinfo === true){
+        navigate("/Main-page")
+      }
+    })
     return (
       <div className="formContainer">
         <div className="formWrapper">
